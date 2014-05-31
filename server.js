@@ -10,57 +10,11 @@ var config = {
 };
 
 // main config
-
-app.use(express.static(__dirname + '/public'));
-app.use(bodyParser());
+require('./server/config/config');
 
 // db config
+require('./server/config/db.js')(config);
 
-var db = mongoose.createConnection(config.connection);
-db.on('error', console.error.bind(console, 'connection error'));
-db.on('open', function () {
-    console.log('connection successful');
-});
-
-// blog model and init
-var blogSchema = new mongoose.Schema({
-    title: String,
-    date: Date,
-    author: String,
-    image: String,
-    comments: [
-        {username: String, date: Date, message: String}
-    ]
-});
-
-var Blog = db.model('Blog', blogSchema);
-Blog.findOne(function (err, blog) {
-    if (err) {
-        console.error(err);
-        return;
-    }
-
-    if (!blog) {
-        console.log('no blog found... creating default entry');
-        var defaultBlog = new Blog({
-            title: "AngularJS",
-            date: new Date(),
-            author: 'Dan Carlstedt',
-            image: 'angular.png',
-            comments: [
-                {
-                    username: 'Steve Smith',
-                    date: new Date(),
-                    message: 'Thank you that was a kick ass posting!!'
-                }
-            ]
-        });
-        defaultBlog.save();
-    } else {
-        console.log('we found a blog');
-        console.log(blog);
-    }
-});
 
 // blog routes
 var router = express.Router();
@@ -68,13 +22,13 @@ router.use(logger());
 
 router.route('/blogs')
     .get(function (req, res) {
-        Blog.find(function (err, blogs) {
+        Blogs.find(function (err, blogs) {
             res.json(blogs);
         });
     })
     .post(function (req, res) {
         var body = req.body;
-        var newBlog = new Blog({
+        var newBlog = new Blogs({
             title: body.title,
             date: new Date(),
             author: body.author,
@@ -91,7 +45,7 @@ router.route('/blogs')
 router.route('/blogs/:blog_id')
     .get(function (req, res) {
         var blogId = req.params.blog_id;
-        Blog.findById(blogId, function (err, blog) {
+        Blogs.findById(blogId, function (err, blog) {
             if(err) res.status(500).json(err);
             if(blog) {
                 res.json(blog);
@@ -102,7 +56,7 @@ router.route('/blogs/:blog_id')
     })
     .put(function (req, res) {
         var blogId = req.params.blog_id;
-        Blog.findById(blogId, function (err, blog) {
+        Blogs.findById(blogId, function (err, blog) {
             if(err) res.status(500).json(err);
             if(blog){
                 // TODO: upate the blog here
