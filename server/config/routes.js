@@ -1,10 +1,9 @@
-//blog routes
 var logger = require('morgan');
-var Blogs = require('../models/blog');
 
-module.exports = function(express,app) {
+module.exports = function(express,app, repository) {
     var router = express.Router();
     router.use(logger());
+    var Blogs = repository.Blogs;
 
     router.route('/blogs')
         .get(function (req, res) {

@@ -1,5 +1,5 @@
 var mongoose = require('mongoose');
-var Blogs = new require('../models/blog')(mongoose);
+var Blogs = require('../models/blog')(mongoose);
 
 module.exports = function(config){
     mongoose.connect(config.connection);
@@ -36,4 +36,8 @@ module.exports = function(config){
             console.log(blog);
         }
     });
+
+    return {
+        Blogs: Blogs
+    };
 };
